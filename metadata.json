@@ -1,0 +1,6 @@
+{
+  "name": "SyndicPro - Gestion de Résidence",
+  "description": "Interface complète et moderne de gestion de résidence et copropriété (Layouts Syndic, Résident et Auth, Navigation rétractable, Dashboards et Tableaux de données).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

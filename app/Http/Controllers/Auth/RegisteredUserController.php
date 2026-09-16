@@ -105,7 +105,7 @@ class RegisteredUserController extends Controller
                 'Nouvelle inscription résident',
                 $user->name . ' a rejoint ' . $residence->name . '.',
                 'registration',
-                route('syndic.residents')
+                route('syndic.notifications')
             ));
         }
 

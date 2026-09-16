@@ -62,7 +62,7 @@ class PaymentController extends Controller
             'Nouveau paiement à valider',
             $request->user()->name . ' a déclaré un paiement de ' . number_format((float) $data['amount'], 2, ',', ' ') . ' DH.',
             'payment',
-            route('syndic.payments.index')
+            route('syndic.notifications')
         ));
 
         return redirect()->route('resident.payments')->with('success', 'Votre reçu a été envoyé au syndic pour validation.');

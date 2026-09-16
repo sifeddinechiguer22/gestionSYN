@@ -22,6 +22,6 @@ class NotificationController extends Controller
     public function markAllRead(Request $request)
     {
         $request->user()->unreadNotifications->markAsRead();
-        return back()->with('success', 'Notifications marquées comme lues.');
+        return redirect()->route('resident.notifications')->with('success', 'Notifications marquées comme lues.');
     }
 }

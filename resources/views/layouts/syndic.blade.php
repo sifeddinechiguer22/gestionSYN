@@ -190,7 +190,7 @@
                             </div>
                             <div class="max-h-64 overflow-y-auto">
                                 @forelse (Auth::user()->notifications()->latest()->take(5)->get() as $notification)
-                                    <a href="{{ $notification->data['url'] ?? route('syndic.notifications') }}" class="block px-4 py-3 hover:bg-slate-50 transition">
+                                    <a href="{{ route('syndic.notifications') }}" class="block px-4 py-3 hover:bg-slate-50 transition">
                                         <p class="text-xs text-slate-800 font-medium">{{ $notification->data['title'] ?? 'Notification' }}</p>
                                         <p class="text-[11px] text-slate-500 mt-0.5">{{ $notification->data['message'] ?? '' }}</p>
                                         <span class="text-[10px] text-slate-400 mt-0.5 block">{{ $notification->created_at->diffForHumans() }}</span>

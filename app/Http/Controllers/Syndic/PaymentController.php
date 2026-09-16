@@ -78,7 +78,7 @@ class PaymentController extends Controller
             'Nouveau paiement enregistré',
             'Un paiement de ' . number_format((float) $payment->amount, 2, ',', ' ') . ' DH a été enregistré pour votre appartement.',
             'payment',
-            route('resident.payments')
+            route('resident.notifications')
         ));
 
         return redirect()->route('syndic.payments.index')->with('success', 'Paiement enregistré et reçu généré avec succès.');
@@ -99,7 +99,7 @@ class PaymentController extends Controller
             'Paiement validé',
             'Votre paiement de ' . number_format((float) $payment->amount, 2, ',', ' ') . ' DH a été validé par le syndic.',
             'payment-approved',
-            route('resident.payments')
+            route('resident.notifications')
         ));
 
         return back()->with('success', 'Paiement validé. Le résident a été informé.');
@@ -120,7 +120,7 @@ class PaymentController extends Controller
             'Paiement annulé',
             'Votre déclaration de paiement a été annulée par le syndic.',
             'payment-cancelled',
-            route('resident.payments')
+            route('resident.notifications')
         ));
 
         return back()->with('success', 'Paiement annulé. Le résident a été informé.');

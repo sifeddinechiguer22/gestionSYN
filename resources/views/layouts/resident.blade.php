@@ -68,6 +68,7 @@
             </div>
 
             <!-- Navigation Links Resident -->
+            @php $residentNotificationCount = Auth::user()?->unreadNotifications()->count() ?? 0; @endphp
             <nav class="flex-1 px-4 py-6 overflow-y-auto space-y-1.5 custom-scrollbar">
                 @php
                     $residentItems = [
@@ -77,7 +78,7 @@
                         ['route' => 'resident.complaints', 'label' => 'Mes Réclamations', 'badge' => '1', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>'],
                         ['route' => 'resident.documents', 'label' => 'Documents Résidence', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'],
                         ['route' => 'resident.announcements', 'label' => 'Annonces & Infos', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>'],
-                        ['route' => 'resident.notifications', 'label' => 'Notifications', 'badge' => '2', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'],
+                        ['route' => 'resident.notifications', 'label' => 'Notifications', 'badge' => $residentNotificationCount, 'badgeId' => 'resident-notification-count', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'],
                     ];
                 @endphp
 
@@ -97,7 +98,7 @@
                         </div>
                         @if (isset($item['badge']))
                             <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $isActive ? 'bg-white/20 text-white' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' }}">
-                                {{ $item['badge'] }}
+                                <span id="{{ $item['badgeId'] ?? '' }}">{{ $item['badge'] }}</span>
                             </span>
                         @endif
                     </a>
@@ -152,7 +153,7 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                             </svg>
-                            <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+                            <span id="resident-header-notification-count" class="absolute top-1.5 right-1.5 min-w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white text-[9px] text-white text-center">{{ $residentNotificationCount }}</span>
                         </button>
                     </div>
 
@@ -177,3 +178,17 @@
     </div>
 </body>
 </html>
+<script>
+    (() => {
+        const countUrl = @json(route('resident.notifications.count'));
+        const updateCount = () => fetch(countUrl, { headers: { 'Accept': 'application/json' } })
+            .then(response => response.json())
+            .then(({ count }) => {
+                document.querySelectorAll('#resident-notification-count, #resident-header-notification-count').forEach((element) => {
+                    element.textContent = count;
+                });
+            })
+            .catch(() => {});
+        setInterval(updateCount, 5000);
+    })();
+</script>

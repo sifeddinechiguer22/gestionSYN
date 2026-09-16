@@ -67,7 +67,7 @@
                         ->whereIn('status', ['déposée', 'en_attente', 'open', 'in_progress'])
                         ->count()
                     : 0;
-                $sidebarNotificationCount = 0;
+                $sidebarNotificationCount = Auth::user()?->unreadNotifications()->count() ?? 0;
             @endphp
             <div class="px-6 py-4 bg-slate-950/40 border-b border-slate-800/60">
                 <div class="flex items-center justify-between">
@@ -96,7 +96,7 @@
                         ['route' => 'syndic.complaints', 'label' => 'Réclamations', 'badge' => $sidebarComplaintCount, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>'],
                         ['route' => 'syndic.documents', 'label' => 'Documents', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'],
                         ['route' => 'syndic.announcements', 'label' => 'Annonces', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>'],
-                        ['route' => 'syndic.notifications', 'label' => 'Notifications', 'badge' => $sidebarNotificationCount, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'],
+                        ['route' => 'syndic.notifications', 'label' => 'Notifications', 'badge' => $sidebarNotificationCount, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>', 'badgeId' => 'syndic-notification-count'],
                     ];
                 @endphp
 
@@ -116,7 +116,7 @@
                         </div>
                         @if (isset($item['badge']))
                             <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $isActive ? 'bg-white/20 text-white' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30' }}">
-                                {{ $item['badge'] }}
+                                <span id="{{ $item['badgeId'] ?? '' }}">{{ $item['badge'] }}</span>
                             </span>
                         @endif
                     </a>
@@ -182,28 +182,22 @@
                             style="display: none;"
                         >
                             <div class="px-4 py-2.5 flex items-center justify-between">
-                                <span class="font-bold text-sm text-slate-900">Notifications (5)</span>
-                                <a href="#" class="text-xs text-brand-600 font-semibold hover:underline">Tout marquer lu</a>
+                                <span class="font-bold text-sm text-slate-900">Notifications (<span id="syndic-header-notification-count">{{ $sidebarNotificationCount }}</span>)</span>
+                                <form method="POST" action="{{ route('syndic.notifications.read-all') }}">
+                                    @csrf
+                                    <button type="submit" class="text-xs text-brand-600 font-semibold hover:underline">Tout marquer lu</button>
+                                </form>
                             </div>
                             <div class="max-h-64 overflow-y-auto">
-                                <a href="#" class="block px-4 py-3 hover:bg-slate-50 transition">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 text-xs font-bold">DH</div>
-                                        <div>
-                                            <p class="text-xs text-slate-800 font-medium"><span class="font-bold">Ayoub Tazi</span> a réglé sa cotisation de 800 DH</p>
-                                            <span class="text-[10px] text-slate-400 mt-0.5 block">Il y a 15 minutes</span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <a href="#" class="block px-4 py-3 hover:bg-slate-50 transition">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-xs font-bold">!</div>
-                                        <div>
-                                            <p class="text-xs text-slate-800 font-medium">Nouvelle réclamation : Panne d'ascenseur (Bât B)</p>
-                                            <span class="text-[10px] text-slate-400 mt-0.5 block">Il y a 2 heures</span>
-                                        </div>
-                                    </div>
-                                </a>
+                                @forelse (Auth::user()->notifications()->latest()->take(5)->get() as $notification)
+                                    <a href="{{ $notification->data['url'] ?? route('syndic.notifications') }}" class="block px-4 py-3 hover:bg-slate-50 transition">
+                                        <p class="text-xs text-slate-800 font-medium">{{ $notification->data['title'] ?? 'Notification' }}</p>
+                                        <p class="text-[11px] text-slate-500 mt-0.5">{{ $notification->data['message'] ?? '' }}</p>
+                                        <span class="text-[10px] text-slate-400 mt-0.5 block">{{ $notification->created_at->diffForHumans() }}</span>
+                                    </a>
+                                @empty
+                                    <p class="px-4 py-5 text-xs text-slate-400">Aucune notification.</p>
+                                @endforelse
                             </div>
                         </div>
                     </div>
@@ -229,3 +223,17 @@
     </div>
 </body>
 </html>
+<script>
+    (() => {
+        const countUrl = @json(route('syndic.notifications.count'));
+        const updateCount = () => fetch(countUrl, { headers: { 'Accept': 'application/json' } })
+            .then(response => response.json())
+            .then(({ count }) => {
+                document.querySelectorAll('#syndic-notification-count, #syndic-header-notification-count').forEach((element) => {
+                    element.textContent = count;
+                });
+            })
+            .catch(() => {});
+        setInterval(updateCount, 5000);
+    })();
+</script>

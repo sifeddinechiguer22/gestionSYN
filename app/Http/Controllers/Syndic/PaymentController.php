@@ -8,6 +8,7 @@ use App\Models\Payment;
 use App\Models\Apartment;
 use App\Models\Building;
 use Illuminate\Http\Request;
+use App\Notifications\ApplicationNotification;
 
 class PaymentController extends Controller
 {
@@ -71,7 +72,14 @@ class PaymentController extends Controller
             $data['proof_file'] = $request->file('proof_file')->store('receipts', 'public');
         }
 
-        Payment::create($data);
+        $payment = Payment::create($data);
+
+        $apartment->resident?->notify(new ApplicationNotification(
+            'Nouveau paiement enregistré',
+            'Un paiement de ' . number_format((float) $payment->amount, 2, ',', ' ') . ' DH a été enregistré pour votre appartement.',
+            'payment',
+            route('resident.payments')
+        ));
 
         return redirect()->route('syndic.payments.index')->with('success', 'Paiement enregistré et reçu généré avec succès.');
     }
@@ -87,6 +95,13 @@ class PaymentController extends Controller
             'notes' => trim(($payment->notes ? $payment->notes . ' ' : '') . 'Paiement validé par le syndic le ' . now()->format('d/m/Y H:i') . '.'),
         ]);
 
+        $payment->payer?->notify(new ApplicationNotification(
+            'Paiement validé',
+            'Votre paiement de ' . number_format((float) $payment->amount, 2, ',', ' ') . ' DH a été validé par le syndic.',
+            'payment-approved',
+            route('resident.payments')
+        ));
+
         return back()->with('success', 'Paiement validé. Le résident a été informé.');
     }
 
@@ -100,6 +115,13 @@ class PaymentController extends Controller
             'status' => 'cancelled',
             'notes' => trim(($payment->notes ? $payment->notes . ' ' : '') . 'Paiement annulé par le syndic le ' . now()->format('d/m/Y H:i') . '.'),
         ]);
+
+        $payment->payer?->notify(new ApplicationNotification(
+            'Paiement annulé',
+            'Votre déclaration de paiement a été annulée par le syndic.',
+            'payment-cancelled',
+            route('resident.payments')
+        ));
 
         return back()->with('success', 'Paiement annulé. Le résident a été informé.');
     }

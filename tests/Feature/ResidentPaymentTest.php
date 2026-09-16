@@ -48,6 +48,11 @@ class ResidentPaymentTest extends TestCase
             'status' => 'pending',
             'amount' => 800,
         ]);
+        $this->assertDatabaseHas('notifications', [
+            'notifiable_type' => User::class,
+            'notifiable_id' => $syndic->id,
+            'read_at' => null,
+        ]);
 
         $this->actingAs($syndic)
             ->get(route('syndic.payments.index'))

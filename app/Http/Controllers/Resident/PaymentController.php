@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Notifications\ApplicationNotification;
 
 class PaymentController extends Controller
 {
@@ -44,7 +45,7 @@ class PaymentController extends Controller
             ? $request->file('proof_file')->store('receipts', 'public')
             : null;
 
-        Payment::create([
+        $payment = Payment::create([
             'apartment_id' => $apartment->id,
             'user_id' => $request->user()->id,
             'receipt_number' => 'DECL-' . now()->format('YmdHis') . '-' . $request->user()->id,
@@ -56,6 +57,13 @@ class PaymentController extends Controller
             'proof_file' => $proofPath,
             'notes' => 'Déclaration de paiement envoyée par le résident, en attente de validation du syndic.',
         ]);
+
+        $apartment->building->residence->syndic?->notify(new ApplicationNotification(
+            'Nouveau paiement à valider',
+            $request->user()->name . ' a déclaré un paiement de ' . number_format((float) $data['amount'], 2, ',', ' ') . ' DH.',
+            'payment',
+            route('syndic.payments.index')
+        ));
 
         return redirect()->route('resident.payments')->with('success', 'Votre reçu a été envoyé au syndic pour validation.');
     }

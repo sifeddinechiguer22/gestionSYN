@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use App\Notifications\ApplicationNotification;
 
 class RegisteredUserController extends Controller
 {
@@ -99,6 +100,13 @@ class RegisteredUserController extends Controller
                     'status' => 'occupied',
                 ]
             );
+
+            $residence->syndic?->notify(new ApplicationNotification(
+                'Nouvelle inscription résident',
+                $user->name . ' a rejoint ' . $residence->name . '.',
+                'registration',
+                route('syndic.residents')
+            ));
         }
 
         event(new Registered($user));

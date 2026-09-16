@@ -54,6 +54,8 @@ Route::prefix('syndic')->name('syndic.')->middleware(['auth', 'role:syndic'])->g
     Route::post('/announcements', [App\Http\Controllers\Syndic\AnnouncementController::class, 'store'])->name('announcements.store');
 
     Route::get('/notifications', App\Http\Controllers\Syndic\NotificationController::class)->name('notifications');
+    Route::get('/notifications/count', [App\Http\Controllers\Syndic\NotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::post('/notifications/read-all', [App\Http\Controllers\Syndic\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 });
 
 // Routes for Resident Space
@@ -70,6 +72,8 @@ Route::prefix('resident')->name('resident.')->middleware(['auth', 'role:resident
     Route::get('/documents', App\Http\Controllers\Resident\DocumentController::class)->name('documents');
     Route::get('/announcements', App\Http\Controllers\Resident\AnnouncementController::class)->name('announcements');
     Route::get('/notifications', App\Http\Controllers\Resident\NotificationController::class)->name('notifications');
+    Route::get('/notifications/count', [App\Http\Controllers\Resident\NotificationController::class, 'unreadCount'])->name('notifications.count');
+    Route::post('/notifications/read-all', [App\Http\Controllers\Resident\NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 });
 
 Route::get('/dashboard', function () {

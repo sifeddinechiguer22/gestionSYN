@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 
 class BuildingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $buildings = Building::withCount('apartments')->with('residence')->get();
-        $residence = Residence::first();
+        $residence = $request->user()->managedResidence;
+        $buildings = $residence
+            ? $residence->buildings()->withCount('apartments')->with('residence')->get()
+            : collect();
 
         return view('syndic.buildings.index', compact('buildings', 'residence'));
     }
@@ -25,7 +27,8 @@ class BuildingController extends Controller
             'floors_count' => ['required', 'integer', 'min:1'],
         ]);
 
-        $residence = Residence::first();
+        $residence = $request->user()->managedResidence;
+        abort_unless($residence, 404, 'Aucune résidence n’est associée à ce syndic.');
 
         Building::create([
             'residence_id' => $residence->id,

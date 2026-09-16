@@ -7,14 +7,18 @@
             <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
                     <span class="px-3 py-1 rounded-full text-xs font-semibold bg-brand-500/20 text-brand-300 border border-brand-500/30 inline-block mb-2">Copropriété Active</span>
-                    <h2 class="text-2xl font-extrabold tracking-tight">{{ $residence->name ?? 'Résidence Les Palmiers' }}</h2>
+                        <h2 class="text-2xl font-extrabold tracking-tight">{{ $residence?->name ?? 'Aucune résidence enregistrée' }}</h2>
                     <p class="text-slate-300 text-sm mt-1 flex items-center gap-2">
                         <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        {{ $residence->address ?? '142 Boulevard Ghandi' }}, {{ $residence->city ?? 'Casablanca' }} ({{ $residence->postal_code ?? '20000' }})
+                        @if ($residence)
+                            {{ $residence->address }}, {{ $residence->city }} ({{ $residence->postal_code }})
+                        @else
+                            Les informations de la résidence seront affichées après sa création.
+                        @endif
                     </p>
                 </div>
                 <div class="shrink-0 flex items-center gap-3">
-                    <x-badge variant="success" size="md" dot>Gestionnaires : Karim Bennani</x-badge>
+                    <x-badge variant="neutral" size="md">Aucun gestionnaire configuré</x-badge>
                 </div>
             </div>
         </div>
@@ -45,7 +49,8 @@
         <!-- Buildings List -->
         <x-card title="Bâtiments & Immeubles de la Résidence" subtitle="Vue synthétique des blocs composants la copropriété">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                @foreach ($residence->buildings as $building)
+                @if ($residence)
+                    @foreach ($residence->buildings as $building)
                     <div class="p-5 rounded-2xl border border-slate-200 bg-white hover:shadow-card transition space-y-3">
                         <div class="flex items-center justify-between">
                             <h4 class="font-extrabold text-base text-slate-900">{{ $building->name }}</h4>
@@ -65,7 +70,10 @@
                             <x-button variant="outline" size="sm" class="w-full">Voir les appartements &rarr;</x-button>
                         </a>
                     </div>
-                @endforeach
+                    @endforeach
+                @else
+                    <p class="md:col-span-3 text-center text-sm text-slate-400 py-8">Aucun bâtiment enregistré.</p>
+                @endif
             </div>
         </x-card>
     </div>

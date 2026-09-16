@@ -19,6 +19,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+    }
+
+    private function seedDemoData(): void
+    {
         // 1. Create Syndic User
         $syndic = User::create([
             'name' => 'Karim Bennani',

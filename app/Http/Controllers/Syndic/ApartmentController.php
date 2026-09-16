@@ -12,7 +12,9 @@ class ApartmentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Apartment::with(['building', 'resident']);
+        $residenceId = $request->user()->managedResidence?->id;
+        $query = Apartment::with(['building', 'resident'])
+            ->whereHas('building', fn ($buildingQuery) => $buildingQuery->where('residence_id', $residenceId));
 
         if ($request->filled('building')) {
             $query->where('building_id', $request->input('building'));
@@ -23,8 +25,10 @@ class ApartmentController extends Controller
         }
 
         $apartments = $query->paginate(12)->withQueryString();
-        $buildings = Building::all();
-        $residents = User::where('role', 'resident')->get();
+        $buildings = Building::where('residence_id', $residenceId)->get();
+        $residents = User::where('role', 'resident')
+            ->whereHas('apartments.building', fn ($buildingQuery) => $buildingQuery->where('residence_id', $residenceId))
+            ->get();
 
         return view('syndic.apartments.index', compact('apartments', 'buildings', 'residents'));
     }
@@ -39,6 +43,14 @@ class ApartmentController extends Controller
             'status' => ['required', 'in:occupied,vacant'],
             'user_id' => ['nullable', 'exists:users,id'],
         ]);
+
+        abort_unless(
+            Building::where('id', $request->building_id)
+                ->where('residence_id', $request->user()->managedResidence?->id)
+                ->exists(),
+            403,
+            'Ce bâtiment n’appartient pas à votre résidence.'
+        );
 
         Apartment::create($request->all());
 

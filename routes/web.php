@@ -13,6 +13,10 @@ Route::get('/', function () {
 });
 
 // Routes for Syndic Space
+Route::get('/syndic', function () {
+    return redirect()->route('syndic.dashboard');
+})->middleware(['auth', 'role:syndic']);
+
 Route::prefix('syndic')->name('syndic.')->middleware(['auth', 'role:syndic'])->group(function () {
     Route::get('/dashboard', App\Http\Controllers\Syndic\DashboardController::class)->name('dashboard');
     Route::get('/dashboard/pdf', [App\Http\Controllers\Syndic\DashboardController::class, 'downloadReport'])->name('dashboard.pdf');
@@ -29,6 +33,8 @@ Route::prefix('syndic')->name('syndic.')->middleware(['auth', 'role:syndic'])->g
 
     Route::get('/payments', [App\Http\Controllers\Syndic\PaymentController::class, 'index'])->name('payments.index');
     Route::post('/payments', [App\Http\Controllers\Syndic\PaymentController::class, 'store'])->name('payments.store');
+    Route::patch('/payments/{payment}/approve', [App\Http\Controllers\Syndic\PaymentController::class, 'approve'])->name('payments.approve');
+    Route::patch('/payments/{payment}/cancel', [App\Http\Controllers\Syndic\PaymentController::class, 'cancel'])->name('payments.cancel');
     Route::get('/payments/create', [App\Http\Controllers\Syndic\PaymentController::class, 'create'])->name('payments.create');
     Route::get('/payments/{payment}/receipt', [App\Http\Controllers\Syndic\PaymentController::class, 'downloadReceipt'])->name('payments.receipt');
 
@@ -55,6 +61,7 @@ Route::prefix('resident')->name('resident.')->middleware(['auth', 'role:resident
     Route::get('/dashboard', App\Http\Controllers\Resident\DashboardController::class)->name('dashboard');
     Route::get('/apartment', App\Http\Controllers\Resident\ApartmentController::class)->name('apartment');
     Route::get('/payments', App\Http\Controllers\Resident\PaymentController::class)->name('payments');
+    Route::post('/payments', [App\Http\Controllers\Resident\PaymentController::class, 'store'])->name('payments.store');
 
     Route::get('/complaints', [App\Http\Controllers\Resident\ComplaintController::class, 'index'])->name('complaints');
     Route::post('/complaints', [App\Http\Controllers\Resident\ComplaintController::class, 'store'])->name('complaints.store');

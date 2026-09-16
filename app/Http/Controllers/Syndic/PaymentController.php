@@ -13,7 +13,9 @@ class PaymentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Payment::with(['apartment.building', 'payer']);
+        $residenceId = $request->user()->managedResidence?->id;
+        $query = Payment::with(['apartment.building', 'payer'])
+            ->whereHas('apartment.building', fn ($buildingQuery) => $buildingQuery->where('residence_id', $residenceId));
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -45,7 +47,7 @@ class PaymentController extends Controller
         }
 
         $payments = $query->latest('payment_date')->paginate(10)->withQueryString();
-        $buildings = Building::all();
+        $buildings = Building::where('residence_id', $residenceId)->get();
 
         return view('syndic.payments.index', compact('payments', 'buildings'));
     }
@@ -72,6 +74,45 @@ class PaymentController extends Controller
         Payment::create($data);
 
         return redirect()->route('syndic.payments.index')->with('success', 'Paiement enregistré et reçu généré avec succès.');
+    }
+
+    public function approve(Request $request, Payment $payment)
+    {
+        $this->ensureManagedPayment($request, $payment);
+
+        abort_unless($payment->status === 'pending', 422, 'Seuls les paiements en attente peuvent être validés.');
+
+        $payment->update([
+            'status' => 'paid',
+            'notes' => trim(($payment->notes ? $payment->notes . ' ' : '') . 'Paiement validé par le syndic le ' . now()->format('d/m/Y H:i') . '.'),
+        ]);
+
+        return back()->with('success', 'Paiement validé. Le résident a été informé.');
+    }
+
+    public function cancel(Request $request, Payment $payment)
+    {
+        $this->ensureManagedPayment($request, $payment);
+
+        abort_unless($payment->status === 'pending', 422, 'Seuls les paiements en attente peuvent être annulés.');
+
+        $payment->update([
+            'status' => 'cancelled',
+            'notes' => trim(($payment->notes ? $payment->notes . ' ' : '') . 'Paiement annulé par le syndic le ' . now()->format('d/m/Y H:i') . '.'),
+        ]);
+
+        return back()->with('success', 'Paiement annulé. Le résident a été informé.');
+    }
+
+    private function ensureManagedPayment(Request $request, Payment $payment): void
+    {
+        $residenceId = $request->user()->managedResidence?->id;
+
+        abort_unless(
+            $payment->apartment()->whereHas('building', fn ($query) => $query->where('residence_id', $residenceId))->exists(),
+            403,
+            'Ce paiement n’appartient pas à votre résidence.'
+        );
     }
 
     public function downloadReceipt(Request $request, Payment $payment)

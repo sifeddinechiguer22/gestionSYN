@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('month'); // e.g. "2026-09" or "Septembre 2026"
             $table->date('payment_date');
             $table->enum('payment_method', ['virement', 'especes', 'cheque', 'carte'])->default('virement');
-            $table->enum('status', ['paid', 'pending', 'late'])->default('paid');
+            $table->enum('status', ['paid', 'pending', 'late', 'cancelled'])->default('paid');
             $table->string('reference')->nullable();
             $table->string('proof_file')->nullable();
             $table->text('notes')->nullable();

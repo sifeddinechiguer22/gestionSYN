@@ -88,13 +88,27 @@
                         @if ($payment->status === 'paid')
                             <x-badge variant="success" dot>Payé</x-badge>
                         @elseif ($payment->status === 'pending')
-                            <x-badge variant="warning" dot>En attente</x-badge>
+                            <x-badge variant="warning" dot>À valider par le syndic</x-badge>
+                        @elseif ($payment->status === 'cancelled')
+                            <x-badge variant="danger" dot>Annulé</x-badge>
                         @else
                             <x-badge variant="danger" dot>En retard</x-badge>
                         @endif
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
+                            @if ($payment->status === 'pending')
+                                <form method="POST" action="{{ route('syndic.payments.approve', $payment) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100">Valider</button>
+                                </form>
+                                <form method="POST" action="{{ route('syndic.payments.cancel', $payment) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100">Annuler</button>
+                                </form>
+                            @endif
                             <a href="{{ route('syndic.payments.receipt', $payment->id) }}" title="Télécharger reçu PDF" class="p-1.5 text-brand-600 hover:bg-brand-50 rounded-lg transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

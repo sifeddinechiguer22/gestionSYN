@@ -29,6 +29,8 @@ export const PaymentsPage: React.FC = () => {
   const [amount, setAmount] = useState(1000);
   const [method, setMethod] = useState<'Virement' | 'Chèque' | 'Espèces' | 'En ligne'>('Virement');
   const [month, setMonth] = useState('Mars 2026');
+  const totalCollected = paymentsList.reduce((total, payment) => total + payment.amount, 0);
+  const totalExpenses = MOCK_EXPENSES.reduce((total, expense) => total + expense.amount, 0);
 
   const filteredPayments = paymentsList.filter((p) => {
     const matchesSearch =
@@ -114,24 +116,26 @@ export const PaymentsPage: React.FC = () => {
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>Total Encaissé (Mars)</span>
             <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full">
-              79% collecté
+              {RESIDENCE_INFO.monthlyCollectionTarget > 0
+                ? Math.round((totalCollected / RESIDENCE_INFO.monthlyCollectionTarget) * 100)
+                : 0}% collecté
             </span>
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2">
-            {RESIDENCE_INFO.currentCollectedMonth.toLocaleString('fr-FR')} {RESIDENCE_INFO.currency}
+            {totalCollected.toLocaleString('fr-FR')} {RESIDENCE_INFO.currency}
           </div>
-          <p className="text-xs text-slate-400 mt-1">Sur objectif de 48 000 MAD</p>
+          <p className="text-xs text-slate-400 mt-1">Sur objectif de {RESIDENCE_INFO.monthlyCollectionTarget.toLocaleString('fr-FR')} {RESIDENCE_INFO.currency}</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>Reste à recouvrer</span>
             <span className="bg-rose-50 text-rose-700 text-[11px] font-bold px-2 py-0.5 rounded-full">
-              10 appartements
+              0 appartement
             </span>
           </div>
           <div className="text-2xl font-bold text-rose-600 mt-2">
-            9 600 {RESIDENCE_INFO.currency}
+            0 {RESIDENCE_INFO.currency}
           </div>
           <p className="text-xs text-slate-400 mt-1">Échéance mensuelle passée</p>
         </div>
@@ -140,13 +144,13 @@ export const PaymentsPage: React.FC = () => {
           <div className="flex items-center justify-between text-xs text-slate-500">
             <span>Dépenses du mois</span>
             <span className="bg-amber-50 text-amber-700 text-[11px] font-bold px-2 py-0.5 rounded-full">
-              5 factures
+              {MOCK_EXPENSES.length} facture(s)
             </span>
           </div>
           <div className="text-2xl font-bold text-slate-900 mt-2">
-            14 250 {RESIDENCE_INFO.currency}
+            {totalExpenses.toLocaleString('fr-FR')} {RESIDENCE_INFO.currency}
           </div>
-          <p className="text-xs text-slate-400 mt-1">Solde net du mois : +24 150 MAD</p>
+          <p className="text-xs text-slate-400 mt-1">Aucune dépense enregistrée</p>
         </div>
       </div>
 

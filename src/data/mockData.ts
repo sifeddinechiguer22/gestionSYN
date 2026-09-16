@@ -12,17 +12,17 @@ export const RESIDENCE_INFO = {
   name: 'Résidence Les Jardins d’Atlas',
   address: 'Avenue Mohammed VI, Lotissement Al Boustane',
   city: 'Casablanca',
-  totalBuildings: 3,
-  totalApartments: 48,
-  totalResidents: 84,
-  occupancyRate: 96,
-  bankBalance: 142850,
-  monthlyCollectionTarget: 48000,
-  currentCollectedMonth: 38400,
+  totalBuildings: 0,
+  totalApartments: 0,
+  totalResidents: 0,
+  occupancyRate: 0,
+  bankBalance: 0,
+  monthlyCollectionTarget: 0,
+  currentCollectedMonth: 0,
   currency: 'MAD',
 };
 
-export const MOCK_RESIDENTS: Resident[] = [
+const SAMPLE_RESIDENTS: Resident[] = [
   {
     id: 'res-1',
     firstName: 'Karim',
@@ -205,7 +205,7 @@ export const MOCK_RESIDENTS: Resident[] = [
   }
 ];
 
-export const MOCK_PAYMENTS: Payment[] = [
+const SAMPLE_PAYMENTS: Payment[] = [
   {
     id: 'pay-001',
     residentName: 'Karim Bennani',
@@ -304,7 +304,7 @@ export const MOCK_PAYMENTS: Payment[] = [
   }
 ];
 
-export const MOCK_EXPENSES: Expense[] = [
+const SAMPLE_EXPENSES: Expense[] = [
   {
     id: 'exp-1',
     category: 'Gardiennage',
@@ -352,7 +352,7 @@ export const MOCK_EXPENSES: Expense[] = [
   }
 ];
 
-export const MOCK_COMPLAINTS: Complaint[] = [
+const SAMPLE_COMPLAINTS: Complaint[] = [
   {
     id: 'rec-101',
     residentName: 'Fatima-Zahra El Mansouri',
@@ -399,7 +399,7 @@ export const MOCK_COMPLAINTS: Complaint[] = [
   }
 ];
 
-export const MOCK_ANNOUNCEMENTS: Announcement[] = [
+const SAMPLE_ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'ann-1',
     title: 'Assemblée Générale Ordinaire 2026',
@@ -429,7 +429,7 @@ export const MOCK_ANNOUNCEMENTS: Announcement[] = [
   }
 ];
 
-export const MOCK_DOCUMENTS: ResidenceDocument[] = [
+const SAMPLE_DOCUMENTS: ResidenceDocument[] = [
   {
     id: 'doc-1',
     name: 'Règlement de copropriété - Résidence Les Jardins d’Atlas.pdf',
@@ -467,7 +467,7 @@ export const MOCK_DOCUMENTS: ResidenceDocument[] = [
   }
 ];
 
-export const MOCK_NOTIFICATIONS: AppNotification[] = [
+const SAMPLE_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-1',
     title: 'Nouvelle réclamation urgente',
@@ -501,6 +501,14 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
     type: 'alert',
   }
 ];
+
+export const MOCK_RESIDENTS: Resident[] = [];
+export const MOCK_PAYMENTS: Payment[] = [];
+export const MOCK_EXPENSES: Expense[] = [];
+export const MOCK_COMPLAINTS: Complaint[] = [];
+export const MOCK_ANNOUNCEMENTS: Announcement[] = [];
+export const MOCK_DOCUMENTS: ResidenceDocument[] = [];
+export const MOCK_NOTIFICATIONS: AppNotification[] = [];
 
 export const CURRENT_RESIDENT_PROFILE = {
   name: 'Fatima-Zahra El Mansouri',

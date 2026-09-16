@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Residence;
+use App\Models\Building;
+use App\Models\Apartment;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,6 +50,18 @@ class RegisteredUserController extends Controller
 
         $request->validate($rules);
 
+        if ($request->role === 'resident') {
+            $residence = Residence::where('name', $request->residence_name)
+                ->whereNotNull('syndic_id')
+                ->first();
+
+            if (!$residence) {
+                throw ValidationException::withMessages([
+                    'residence_name' => 'Cette résidence n’est pas encore enregistrée par un syndic.',
+                ]);
+            }
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -62,12 +77,7 @@ class RegisteredUserController extends Controller
             );
             $residence->update(['syndic_id' => $user->id]);
         } else {
-            $residence = \App\Models\Residence::firstOrCreate(
-                ['name' => $request->residence_name],
-                ['address' => 'Casablanca', 'city' => 'Casablanca']
-            );
-
-            $building = \App\Models\Building::firstOrCreate(
+            $building = Building::firstOrCreate(
                 [
                     'residence_id' => $residence->id,
                     'name' => $request->building_name,
@@ -77,13 +87,12 @@ class RegisteredUserController extends Controller
                 ]
             );
 
-            \App\Models\Apartment::updateOrCreate(
+            Apartment::updateOrCreate(
                 [
                     'building_id' => $building->id,
                     'number' => $request->apartment_number,
                 ],
                 [
-                    'residence_id' => $residence->id,
                     'user_id' => $user->id,
                     'floor' => (int) $request->floor,
                     'monthly_fee' => 800.00,

@@ -12,11 +12,11 @@ class ResidenceController extends Controller
 {
     public function __invoke(Request $request)
     {
-        $residence = Residence::with(['buildings.apartments'])->first();
-        $buildingsCount = Building::count();
-        $apartmentsCount = Apartment::count();
-        $occupiedCount = Apartment::where('status', 'occupied')->count();
-        $vacantCount = Apartment::where('status', 'vacant')->count();
+        $residence = $request->user()->managedResidence?->load('buildings.apartments');
+        $buildingsCount = $residence?->buildings->count() ?? 0;
+        $apartmentsCount = $residence?->buildings->flatMap->apartments->count() ?? 0;
+        $occupiedCount = $residence?->buildings->flatMap->apartments->where('status', 'occupied')->count() ?? 0;
+        $vacantCount = $residence?->buildings->flatMap->apartments->where('status', 'vacant')->count() ?? 0;
 
         return view('syndic.residence.index', compact(
             'residence',

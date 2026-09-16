@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Syndic;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Apartment;
+use App\Models\Residence;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +13,12 @@ class ResidentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('role', 'resident')->with('apartments.building');
+        $residenceId = $request->user()->managedResidence?->id;
+        $query = User::where('role', 'resident')
+            ->whereHas('apartments.building', function ($buildingQuery) use ($residenceId) {
+                $buildingQuery->where('residence_id', $residenceId);
+            })
+            ->with('apartments.building');
 
         if ($request->filled('search')) {
             $search = $request->input('search');

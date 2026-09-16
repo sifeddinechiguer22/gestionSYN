@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import {
   RESIDENCE_INFO,
+  MOCK_RESIDENTS,
   MOCK_PAYMENTS,
   MOCK_COMPLAINTS,
   MOCK_ANNOUNCEMENTS,
@@ -38,14 +39,16 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
   );
   const totalUnpaid = RESIDENCE_INFO.monthlyCollectionTarget - RESIDENCE_INFO.currentCollectedMonth;
   const totalExpensesMonth = MOCK_EXPENSES.reduce((acc, curr) => acc + curr.amount, 0);
+  const activeComplaints = MOCK_COMPLAINTS.filter((complaint) => complaint.status !== 'Résolu');
+  const urgentComplaints = MOCK_COMPLAINTS.filter((complaint) => complaint.priority === 'Urgente');
 
   const statsCards = [
     {
       id: 'stat-residents',
       title: 'Résidents inscrits',
-      value: '84',
-      subtext: '48 copropriétaires, 36 locataires',
-      badge: '96% occupés',
+      value: `${MOCK_RESIDENTS.length}`,
+      subtext: 'Aucun résident enregistré',
+      badge: '0% occupés',
       badgeType: 'positive',
       icon: Users,
       iconColor: 'text-indigo-600 bg-indigo-50 border-indigo-100',
@@ -54,9 +57,9 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
     {
       id: 'stat-appartements',
       title: 'Appartements & Lots',
-      value: '48',
-      subtext: 'Répartis sur 3 bâtiments (A, B, C)',
-      badge: '3 bâtiments',
+      value: `${RESIDENCE_INFO.totalApartments}`,
+      subtext: 'Aucun lot enregistré',
+      badge: `${RESIDENCE_INFO.totalBuildings} bâtiments`,
       badgeType: 'neutral',
       icon: Building,
       iconColor: 'text-sky-600 bg-sky-50 border-sky-100',
@@ -66,8 +69,8 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
       id: 'stat-paiements-mois',
       title: 'Paiements de Mars',
       value: `${collectionRate}%`,
-      subtext: '38 cotisations reçues sur 48',
-      badge: '10 restants',
+      subtext: 'Aucune cotisation enregistrée',
+      badge: '0 restant',
       badgeType: 'warning',
       icon: CreditCard,
       iconColor: 'text-emerald-600 bg-emerald-50 border-emerald-100',
@@ -78,7 +81,7 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
       title: 'Total Encaissé (Mois)',
       value: `${RESIDENCE_INFO.currentCollectedMonth.toLocaleString('fr-FR')} ${RESIDENCE_INFO.currency}`,
       subtext: `Objectif : ${RESIDENCE_INFO.monthlyCollectionTarget.toLocaleString('fr-FR')} ${RESIDENCE_INFO.currency}`,
-      badge: '+12% vs M-1',
+      badge: 'Aucune donnée',
       badgeType: 'positive',
       icon: TrendingUp,
       iconColor: 'text-teal-600 bg-teal-50 border-teal-100',
@@ -88,8 +91,8 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
       id: 'stat-impayes',
       title: 'Total Impayés (Mois)',
       value: `${totalUnpaid.toLocaleString('fr-FR')} ${RESIDENCE_INFO.currency}`,
-      subtext: 'Relances automatiques prêtes',
-      badge: '10 lots en retard',
+      subtext: 'Aucun impayé enregistré',
+      badge: '0 lot en retard',
       badgeType: 'danger',
       icon: AlertTriangle,
       iconColor: 'text-rose-600 bg-rose-50 border-rose-100',
@@ -99,8 +102,8 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
       id: 'stat-depenses',
       title: 'Dépenses Engagées',
       value: `${totalExpensesMonth.toLocaleString('fr-FR')} ${RESIDENCE_INFO.currency}`,
-      subtext: '5 factures réglées ce mois',
-      badge: 'Sous budget',
+      subtext: 'Aucune dépense enregistrée',
+      badge: 'Aucune donnée',
       badgeType: 'positive',
       icon: Receipt,
       iconColor: 'text-amber-600 bg-amber-50 border-amber-100',
@@ -109,9 +112,9 @@ export const SyndicDashboard: React.FC<SyndicDashboardProps> = ({
     {
       id: 'stat-reclamations',
       title: 'Réclamations Actives',
-      value: '4',
-      subtext: '1 urgente (Ascenseur Bât B)',
-      badge: '1 urgente',
+      value: `${activeComplaints.length}`,
+      subtext: 'Aucune réclamation active',
+      badge: `${urgentComplaints.length} urgente`,
       badgeType: 'danger',
       icon: AlertCircle,
       iconColor: 'text-purple-600 bg-purple-50 border-purple-100',

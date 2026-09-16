@@ -3,6 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Building;
+use App\Models\Residence;
+use App\Models\User;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -18,6 +21,17 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        $syndic = User::factory()->create(['role' => 'syndic']);
+        $residence = Residence::create([
+            'syndic_id' => $syndic->id,
+            'name' => 'Résidence Les Palmiers',
+        ]);
+        Building::create([
+            'residence_id' => $residence->id,
+            'name' => 'Bâtiment A',
+            'code' => 'BAT-A',
+        ]);
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',

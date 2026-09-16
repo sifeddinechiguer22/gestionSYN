@@ -2,6 +2,56 @@
     <x-slot name="header">Mes Paiements & Reçus</x-slot>
 
     <div class="space-y-6">
+        @if (session('success'))
+            <x-alert type="success" title="Reçu envoyé" dismissible>{{ session('success') }}</x-alert>
+        @endif
+
+        @if ($errors->any())
+            <x-alert type="error" title="Vérifiez le formulaire" dismissible>
+                {{ $errors->first() }}
+            </x-alert>
+        @endif
+
+        <x-card title="Ajouter un reçu de paiement" subtitle="Déclarez un paiement effectué pour l’envoyer au syndic">
+            <form method="POST" action="{{ route('resident.payments.store') }}" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @csrf
+                <x-form-group label="Montant (DH)" name="amount" required>
+                    <x-input name="amount" type="number" min="1" step="0.01" value="{{ old('amount') }}" required placeholder="Ex: 800" />
+                </x-form-group>
+
+                <x-form-group label="Mois concerné" name="month" required>
+                    <x-input name="month" value="{{ old('month', now()->format('Y-m')) }}" required placeholder="Ex: 2026-09" />
+                </x-form-group>
+
+                <x-form-group label="Mode de paiement" name="payment_method" required>
+                    <select name="payment_method" class="w-full rounded-xl border-slate-200 text-sm" required>
+                        <option value="virement">Virement</option>
+                        <option value="especes">Espèces</option>
+                        <option value="cheque">Chèque</option>
+                        <option value="carte">Carte</option>
+                    </select>
+                </x-form-group>
+
+                <x-form-group label="Date du paiement" name="payment_date" required>
+                    <x-input name="payment_date" type="date" value="{{ old('payment_date', now()->format('Y-m-d')) }}" required />
+                </x-form-group>
+
+                <x-form-group label="Justificatif (facultatif)" name="proof_file">
+                    <x-input name="proof_file" type="file" accept=".pdf,.jpg,.jpeg,.png" />
+                </x-form-group>
+
+                <div class="md:col-span-2 flex items-center justify-between gap-4 pt-3 border-t border-slate-100">
+                    <label class="flex items-center gap-2 text-xs text-slate-600">
+                        <input type="checkbox" name="confirmation" value="1" required class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        Oui, je confirme avoir effectué ce paiement.
+                    </label>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">
+                        Ajouter le reçu
+                    </button>
+                </div>
+            </form>
+        </x-card>
+
         <x-card title="Historique Complet de Mes Cotisations" subtitle="Téléchargez vos reçus officiels au format PDF">
             <x-table :headers="['N° Reçu', 'Mois Concerné', 'Date de Règlement', 'Montant (DH)', 'Mode de Paiement', 'Statut', 'Reçu PDF']" :empty="$payments->isEmpty()">
                 @foreach ($payments as $payment)
@@ -14,8 +64,12 @@
                         <td class="px-6 py-4">
                             @if ($payment->status === 'paid')
                                 <x-badge variant="success" dot>Payé</x-badge>
+                            @elseif ($payment->status === 'cancelled')
+                                <x-badge variant="danger" dot>Annulé par le syndic</x-badge>
+                            @elseif ($payment->status === 'late')
+                                <x-badge variant="danger" dot>En retard</x-badge>
                             @else
-                                <x-badge variant="warning" dot>En attente</x-badge>
+                                <x-badge variant="warning" dot>En attente de validation</x-badge>
                             @endif
                         </td>
                         <td class="px-6 py-4">

@@ -57,13 +57,25 @@
             </div>
 
             <!-- Residence Switcher Badge -->
+            @php
+                $sidebarResidence = Auth::user()?->managedResidence;
+                $sidebarApartmentCount = $sidebarResidence
+                    ? $sidebarResidence->buildings()->withCount('apartments')->get()->sum('apartments_count')
+                    : 0;
+                $sidebarComplaintCount = $sidebarResidence
+                    ? \App\Models\Complaint::whereHas('apartment.building', fn ($query) => $query->where('residence_id', $sidebarResidence->id))
+                        ->whereIn('status', ['déposée', 'en_attente', 'open', 'in_progress'])
+                        ->count()
+                    : 0;
+                $sidebarNotificationCount = 0;
+            @endphp
             <div class="px-6 py-4 bg-slate-950/40 border-b border-slate-800/60">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2.5 overflow-hidden">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
                         <div class="truncate">
-                            <span class="text-xs font-semibold text-slate-200 block truncate">Résidence Les Palmiers</span>
-                            <span class="text-[10px] text-slate-400 truncate">Casablanca — 48 Appts</span>
+                            <span class="text-xs font-semibold text-slate-200 block truncate">{{ $sidebarResidence?->name ?? 'Aucune résidence enregistrée' }}</span>
+                            <span class="text-[10px] text-slate-400 truncate">{{ $sidebarResidence?->city ?? 'Ville non renseignée' }} — {{ $sidebarApartmentCount }} Appts</span>
                         </div>
                     </div>
                     <x-badge variant="neutral" size="sm">Syndic</x-badge>
@@ -81,10 +93,10 @@
                         ['route' => 'syndic.residents', 'label' => 'Résidents', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>'],
                         ['route' => 'syndic.payments.index', 'label' => 'Paiements & Cotisations', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'],
                         ['route' => 'syndic.expenses', 'label' => 'Dépenses & Charges', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>'],
-                        ['route' => 'syndic.complaints', 'label' => 'Réclamations', 'badge' => '3', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>'],
+                        ['route' => 'syndic.complaints', 'label' => 'Réclamations', 'badge' => $sidebarComplaintCount, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>'],
                         ['route' => 'syndic.documents', 'label' => 'Documents', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>'],
                         ['route' => 'syndic.announcements', 'label' => 'Annonces', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>'],
-                        ['route' => 'syndic.notifications', 'label' => 'Notifications', 'badge' => '5', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'],
+                        ['route' => 'syndic.notifications', 'label' => 'Notifications', 'badge' => $sidebarNotificationCount, 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>'],
                     ];
                 @endphp
 

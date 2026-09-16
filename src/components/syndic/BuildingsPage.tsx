@@ -15,7 +15,17 @@ import { RESIDENCE_INFO } from '../../data/mockData';
 export const BuildingsPage: React.FC = () => {
   const [selectedBuilding, setSelectedBuilding] = useState<'all' | 'A' | 'B' | 'C'>('all');
 
-  const buildingsData = [
+  const sampleBuildingsData: {
+    id: 'A' | 'B' | 'C';
+    name: string;
+    floors: number;
+    apartmentsCount: number;
+    occupancy: string;
+    elevatorStatus: string;
+    caretaker: string;
+    caretakerPhone: string;
+    apartments: { code: string; floor: number; res: string; status: string }[];
+  }[] = [
     {
       id: 'A',
       name: 'Bâtiment A — Mimosa',
@@ -69,6 +79,7 @@ export const BuildingsPage: React.FC = () => {
     }
   ];
 
+  const buildingsData: typeof sampleBuildingsData = [];
   const filteredBuildings =
     selectedBuilding === 'all'
       ? buildingsData
@@ -83,7 +94,7 @@ export const BuildingsPage: React.FC = () => {
             Structure Immobilière & Bâtiments
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Visualisation des 3 blocs, lots privatifs et équipements des parties communes.
+            Aucun bâtiment n'est enregistré pour le moment.
           </p>
         </div>
 
@@ -95,7 +106,7 @@ export const BuildingsPage: React.FC = () => {
               selectedBuilding === 'all' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Tous (3)
+            Tous (0)
           </button>
           <button
             onClick={() => setSelectedBuilding('A')}
@@ -200,6 +211,11 @@ export const BuildingsPage: React.FC = () => {
             </div>
           </div>
         ))}
+        {filteredBuildings.length === 0 && (
+          <div className="lg:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
+            Aucun bâtiment ni lot enregistré.
+          </div>
+        )}
       </div>
     </div>
   );
